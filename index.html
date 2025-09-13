@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Maintenance System</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #2196F3;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --background-light: #f4f4f4;
+            --background-dark: #222;
+            --card-light: white;
+            --card-dark: #333;
+            --text-light: #333;
+            --text-dark: #fff;
+            --border-light: #ccc;
+            --border-dark: #555;
+            --critical-task: #ffeb3b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: var(--background-light);
+            color: var(--text-light);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            background: var(--background-dark);
+            color: var(--text-dark);
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2em;
+            margin-bottom: 30px;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            border: 1px solid var(--border-light);
+            padding: 20px;
+            background: var(--card-light);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .section {
+            background: var(--card-dark);
+            border-color: var(--border-dark);
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .task.critical {
+            border-left-color: var(--critical-task);
+            background: #fff9c4;
+        }
+
+        .dark-mode .task {
+            background: #444;
+        }
+
+        .dark-mode .task.critical {
+            background: #665500;
+        }
+
+        .task:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .task input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.3);
+            accent-color: var(--primary-color);
+        }
+
+        .task label {
+            flex-grow: 1;
+            font-weight: 500;
+        }
+
+        .task img {
+            max-width: 100px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .task button {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .task button:hover {
+            background: #d32f2f;
+            transform: scale(1.05);
+        }
+
+        .task .move-btn {
+            background: var(--secondary-color);
+            margin-right: 5px;
+        }
+
+        .task .move-btn:hover {
+            background: #1976D2;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background: #1976D2;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-full {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        input[type="text"], input[type="password"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"] {
+            margin-top: 10px;
+        }
+
+        .dark-mode input[type="text"],
+        .dark-mode input[type="password"],
+        .dark-mode select,
+        .dark-mode textarea {
+            background: var(--card-dark);
+            border-color: var(--border-dark);
+            color: var(--text-dark);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: end;
+        }
+
+        .form-group input {
+            flex: 1;
+        }
+
+        #log, #reports, #shift-reports {
+            margin-top: 25px;
+            border-top: 2px solid var(--border-light);
+            padding-top: 20px;
+        }
+
+        .dark-mode #log,
+        .dark-mode #reports,
+        .dark-mode #shift-reports {
+            border-top-color: var(--border-dark);
+        }
+
+        .overdue {
+            color: var(--danger-color);
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .status {
+            color: var(--primary-color);
+            margin-top: 15px;
+            font-weight: 500;
+            padding: 10px;
+            border-radius: 4px;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .error {
+            color: var(--danger-color);
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .warning {
+            color: var(--warning-color);
+            background: rgba(255, 152, 0, 0.1);
+        }
+
+        .log-item {
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            background: rgba(76, 175, 80, 0.05);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .log-item.incomplete {
+            background: rgba(244, 67, 54, 0.05);
+            border-left-color: var(--danger-color);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color), #66bb6a);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .stat-card p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--primary-color);
+        }
+
+        .notification.error {
+            background: var(--danger-color);
+        }
+
+        .notification.warning {
+            background: var(--warning-color);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background: #555;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-group {
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-controls">
+        <h1 data-en="🔧 Machine Maintenance System" data-sv="🔧 Maskinunderhållssystem">🔧 Machine Maintenance System</h1>
+        <select id="language-toggle" class="btn btn-secondary" aria-label="Select language">
+            <option value="en">English</option>
+            <option value="sv">Svenska</option>
+        </select>
+        <div>
+            <span id="connection-status" class="status">🟢 Online</span>
+            <button id="dark-mode-toggle" class="btn btn-secondary tooltip" aria-label="Toggle theme">
+                🌙 Dark Mode
+                <span class="tooltiptext" data-en="Switch theme" data-sv="Byt tema">Switch theme</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <div class="stats">
+        <div class="stat-card">
+            <h3 id="completion-rate">0%</h3>
+            <p data-en="Completion Rate (24h)" data-sv="Slutföringsgrad (24t)">Completion Rate (24h)</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="total-machines">0</h3>
+            <p data-en="Total Machines" data-sv="Totalt maskiner">Total Machines</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="pending-tasks">0</h3>
+            <p data-en="Pending Tasks" data-sv="Väntande uppgifter">Pending Tasks</p>
+        </div>
+    </div>
+
+    <!-- Admin Login Section -->
+    <div id="admin-login-section" class="section fade-in">
+        <h2 data-en="👨‍💼 Admin Login" data-sv="👨‍💼 Admin inloggning">👨‍💼 Admin Login</h2>
+        <input type="text" id="admin-username" placeholder="Username / Användarnamn" aria-label="Admin username">
+        <input type="password" id="admin-password" placeholder="Password / Lösenord" aria-label="Admin password">
+        <button onclick="adminLogin()" class="btn btn-full" data-en="Login" data-sv="Logga in">Login</button>
+        <button onclick="adminRegister()" class="btn btn-secondary btn-full" data-en="Register New Admin" data-sv="Registrera ny admin">Register New Admin</button>
+        <div id="admin-login-status"></div>
+    </div>
+
+    <!-- Admin Section: Manage Checklists -->
+    <div id="admin-section" class="section fade-in" style="display: none;">
+        <h2 data-en="👨‍💼 Admin: Manage Checklists" data-sv="👨‍💼 Admin: Hantera checklistor">👨‍💼 Admin: Manage Checklists</h2>
+        <div class="form-group">
+            <select id="machine-select" class="machine-selector" aria-label="Select machine"></select>
+            <button onclick="deleteMachine()" class="btn btn-danger tooltip" aria-label="Delete selected machine">
+                🗑️ Delete Machine
+                <span class="tooltiptext" data-en="Remove selected machine" data-sv="Ta bort vald maskin">Remove selected machine</span>
+            </button>
+        </div>
+        <div class="form-group">
+            <input type="text" id="new-task" placeholder="Enter new maintenance task" aria-label="New task" data-en-placeholder="Enter new maintenance task" data-sv-placeholder="Ange ny underhållsuppgift">
+            <select id="task-priority" aria-label="Task priority">
+                <option value="normal" data-en="Normal" data-sv="Normal">Normal</option>
+                <option value="critical" data-en="Critical" data-sv="Kritisk">Critical</option>
+            </select>
+            <input type="file" id="task-image" accept="image/*" aria-label="Upload image for task">
+            <button onclick="addTask()" class="btn tooltip" aria-label="Add task">
+                ➕ Add Task
+                <span class="tooltiptext" data-en="Add new task" data-sv="Lägg till ny uppgift">Add new task</span>
+            </button>
+        </div>
+        <div class="form-group">
+            <input type="text" id="new-machine" placeholder="Add new machine" aria-label="New machine" data-en-placeholder="Add new machine" data-sv-placeholder="Lägg till ny maskin">
+            <button onclick="addMachine()" class="btn btn-secondary tooltip" aria-label="Add machine">
+                🏭 Add Machine
+                <span class="tooltiptext" data-en="Add new machine" data-sv="Lägg till ny maskin">Add new machine</span>
+            </button>
+        </div>
+        <div id="task-list"></div>
+        <button onclick="saveChecklist()" class="btn btn-full tooltip" aria-label="Save checklist">
+            💾 Save Checklist
+            <span class="tooltiptext" data-en="Save all tasks" data-sv="Spara alla uppgifter">Save all tasks</span>
+        </button>
+        <h3 data-en="Manage Additional Lists (e.g., Safety, 5S)" data-sv="Hantera ytterligare listor (t.ex. säkerhet, 5S)">Manage Additional Lists (e.g., Safety, 5S)</h3>
+        <div class="form-group">
+            <input type="text" id="new-list-name" placeholder="New list name (e.g., Safety Check)" data-en-placeholder="New list name (e.g., Safety Check)" data-sv-placeholder="Nytt listnamn (t.ex. Säkerhetskontroll)">
+            <button onclick="addCustomList()" class="btn btn-secondary">➕ Add List</button>
+        </div>
+        <div id="custom-lists"></div>
+        <button onclick="saveCustomLists()" class="btn btn-full">💾 Save Lists</button>
+        <button onclick="resetAllData()" class="btn btn-danger btn-full tooltip" aria-label="Reset all data">
+            🔄 Reset All Data
+            <span class="tooltiptext" data-en="Clear all data" data-sv="Rensa all data">Clear all data</span>
+        </button>
+    </div>
+
+    <!-- Operator Section: Complete Checklist -->
+    <div class="section fade-in">
+        <h2 data-en="👷‍♂️ Operator: Complete Checklist" data-sv="👷‍♂️ Operatör: Slutför checklistan">👷‍♂️ Operator: Complete Checklist</h2>
+        <select id="operator-machine" class="machine-selector" aria-label="Select machine"></select>
+        <form id="checklist">
+            <div id="operator-tasks"></div>
+            <textarea id="notes" placeholder="Add maintenance notes, observations, or issues..." aria-label="Notes" data-en-placeholder="Add maintenance notes, observations, or issues..." data-sv-placeholder="Lägg till underhållsanteckningar, observationer eller problem..."></textarea>
+            <input type="text" id="operator-name" placeholder="Your name" required aria-label="Operator name" data-en-placeholder="Your name" data-sv-placeholder="Ditt namn">
+            <div class="form-group">
+                <button type="button" onclick="saveDraft()" class="btn btn-secondary tooltip" aria-label="Save draft">
+                    💾 Save Draft
+                    <span class="tooltiptext" data-en="Save without submitting" data-sv="Spara utan att skicka in">Save without submitting</span>
+                </button>
+                <button type="submit" class="btn tooltip" aria-label="Submit checklist">
+                    ✅ Submit Checklist
+                    <span class="tooltiptext" data-en="Submit completed checklist" data-sv="Skicka in slutförd checklista">Submit completed checklist</span>
+                </button>
+            </div>
+        </form>
+        <div id="status"></div>
+    </div>
+
+    <!-- Shift Report Section -->
+    <div class="section fade-in">
+        <h2 data-en="📝 Shift Report & Protocols" data-sv="📝 Skiftrapport & Protokoll">📝 Shift Report & Protocols</h2>
+        <select id="shift-select" aria-label="Select shift">
+            <option value="Shift 1" data-en="Shift 1" data-sv="Skift 1">Shift 1</option>
+            <option value="Shift 2" data-en="Shift 2" data-sv="Skift 2">Shift 2</option>
+            <option value="Shift 3" data-en="Shift 3" data-sv="Skift 3">Shift 3</option>
+            <option value="Overtime" data-en="Overtime" data-sv="Övertid">Overtime</option>
+        </select>
+        <form id="shift-report">
+            <textarea id="shift-notes" placeholder="Enter shift report details..." aria-label="Shift notes" data-en-placeholder="Enter shift report details..." data-sv-placeholder="Ange skiftrapportdetaljer..."></textarea>
+            <h3 data-en="Shift Change Protocols" data-sv="Skiftbytesprotokoll">Shift Change Protocols</h3>
+            <div id="shift-protocols">
+                <!-- Dynamically loaded -->
+            </div>
+            <h3 data-en="Additional Lists (Safety, 5S, etc.)" data-sv="Ytterligare listor (Säkerhet, 5S, etc.)">Additional Lists (Safety, 5S, etc.)</h3>
+            <div id="additional-lists"></div>
+            <input type="text" id="shift-operator" placeholder="Your name" required aria-label="Shift operator name" data-en-placeholder="Your name" data-sv-placeholder="Ditt namn">
+            <button type="submit" class="btn btn-full" data-en="Submit Shift Report" data-sv="Skicka in skiftrapport">Submit Shift Report</button>
+        </form>
+        <div id="shift-status"></div>
+    </div>
+
+    <!-- Error/Enhancement Reporting -->
+    <div class="section fade-in">
+        <h2 data-en="📋 Report Issue or Enhancement" data-sv="📋 Rapportera problem eller förbättring">📋 Report Issue or Enhancement</h2>
+        <div class="form-group">
+            <select id="report-type" aria-label="Report type">
+                <option value="bug" data-en="🐛 Bug Report" data-sv="🐛 Felrapport">🐛 Bug Report</option>
+                <option value="enhancement" data-en="💡 Enhancement Idea" data-sv="💡 Förbättringsidé">💡 Enhancement Idea</option>
+                <option value="maintenance" data-en="🔧 Maintenance Issue" data-sv="🔧 Underhållsproblem">🔧 Maintenance Issue</option>
+            </select>
+            <select id="report-machine" aria-label="Related machine">
+                <option value="" data-en="No specific machine" data-sv="Ingen specifik maskin">No specific machine</option>
+            </select>
+            <select id="report-priority" aria-label="Report priority">
+                <option value="low" data-en="Low" data-sv="Låg">Low</option>
+                <option value="medium" data-en="Medium" data-sv="Medel">Medium</option>
+                <option value="high" data-en="High" data-sv="Hög">High</option>
+            </select>
+        </div>
+        <textarea id="report-text" placeholder="Describe the issue or enhancement idea in detail..." aria-label="Report details" data-en-placeholder="Describe the issue or enhancement idea in detail..." data-sv-placeholder="Beskriv problemet eller förbättringsidén i detalj..."></textarea>
+        <input type="text" id="reporter-name" placeholder="Your name (optional)" aria-label="Reporter name" data-en-placeholder="Your name (optional)" data-sv-placeholder="Ditt namn (valfritt)">
+        <button onclick="submitReport()" class="btn btn-full tooltip" aria-label="Submit report">
+            📤 Submit Report
+            <span class="tooltiptext" data-en="Submit report" data-sv="Skicka in rapport">Submit report</span>
+        </button>
+    </div>
+
+    <!-- Logs and Reports -->
+    <div id="log">
+        <h2 data-en="📊 Recent Activity (48 Hours)" data-sv="📊 Senaste aktivitet (48 timmar)">📊 Recent Activity (48 Hours)</h2>
+        <div class="form-group">
+            <select id="log-filter-machine" aria-label="Filter logs by machine">
+                <option value="" data-en="All Machines" data-sv="Alla maskiner">All Machines</option>
+            </select>
+            <select id="log-filter-operator" aria-label="Filter logs by operator">
+                <option value="" data-en="All Operators" data-sv="Alla operatörer">All Operators</option>
+            </select>
+        </div>
+        <div id="log-list"></div>
+    </div>
+
+    <div id="shift-reports">
+        <h2 data-en="📅 Shift Reports (Last 2 Weeks)" data-sv="📅 Skiftrapporter (senaste 2 veckorna)">📅 Shift Reports (Last 2 Weeks)</h2>
+        <div id="shift-report-list"></div>
+    </div>
+
+    <div id="reports">
+        <h2 data-en="📝 Reports & Issues" data-sv="📝 Rapporter & Problem">📝 Reports & Issues</h2>
+        <div id="report-list"></div>
+        <div class="form-group">
+            <button onclick="exportData('json')" class="btn btn-secondary tooltip" aria-label="Export as JSON">
+                📁 Export JSON
+                <span class="tooltiptext" data-en="Export as JSON file" data-sv="Exportera som JSON-fil">Export as JSON file</span>
+            </button>
+            <button onclick="exportData('csv')" class="btn btn-secondary tooltip" aria-label="Export as CSV">
+                📊 Export CSV
+                <span class="tooltiptext" data-en="Export as CSV file" data-sv="Exportera som CSV-fil">Export as CSV file</span>
+            </button>
+            <button onclick="copyToClipboard()" class="btn btn-secondary tooltip" aria-label="Copy to clipboard">
+                📋 Copy to Clipboard
+                <span class="tooltiptext" data-en="Copy data to clipboard" data-sv="Kopiera data till urklipp">Copy data to clipboard</span>
+            </button>
+            <button onclick="clearOldData()" class="btn btn-danger tooltip" aria-label="Clear old data">
+                🗑️ Clear Old Data
+                <span class="tooltiptext" data-en="Clear data older than 30 days" data-sv="Rensa data äldre än 30 dagar">Clear data older than 30 days</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let machines = JSON.parse(localStorage.getItem('machines')) || ['Machine A', 'Machine B', 'CNC Lathe', 'Injection Molder'];
+        let checklists = JSON.parse(localStorage.getItem('checklists')) || {
+            'Machine A': [{ text: 'Check oil levels', priority: 'normal', image: '' }, { text: 'Inspect belts', priority: 'normal', image: '' }, { text: 'Clean filters', priority: 'normal', image: '' }, { text: 'Test emergency stop', priority: 'critical', image: '' }, { text: 'Check temperature gauges', priority: 'normal', image: '' }],
+            'Machine B': [{ text: 'Check coolant', priority: 'normal', image: '' }, { text: 'Inspect gears', priority: 'normal', image: '' }, { text: 'Lubricate joints', priority: 'normal', image: '' }, { text: 'Test safety switches', priority: 'critical', image: '' }],
+            'CNC Lathe': [{ text: 'Check chuck alignment', priority: 'normal', image: '' }, { text: 'Inspect tool wear', priority: 'normal', image: '' }, { text: 'Clean chips', priority: 'normal', image: '' }, { text: 'Verify program parameters', priority: 'critical', image: '' }],
+            'Injection Molder': [{ text: 'Check hydraulic pressure', priority: 'normal', image: '' }, { text: 'Inspect heating elements', priority: 'normal', image: '' }, { text: 'Clean mold surfaces', priority: 'normal', image: '' }, { text: 'Test cycle time', priority: 'critical', image: '' }]
+        };
+        let customLists = JSON.parse(localStorage.getItem('customLists')) || {};
+        let logs = JSON.parse(localStorage.getItem('maintenanceLogs')) || [];
+        let shiftReports = JSON.parse(localStorage.getItem('shiftReports')) || [];
+        let reports = JSON.parse(localStorage.getItem('reports')) || [];
+        let drafts = JSON.parse(localStorage.getItem('checklistDrafts')) || {};
+        let admins = JSON.parse(localStorage.getItem('admins')) || {};
+        let currentLanguage = localStorage.getItem('language') || 'en';
+        let isAdminLoggedIn = false;
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+
+        // Initialize application
+        function init() {
+            updateLanguage();
+            updateMachineSelects();
+            loadTasks();
+            updateOperatorTasks();
+            updateShiftProtocols();
+            updateAdditionalLists();
+            updateLog();
+            updateShiftReports();
+            updateReports();
+            updateStats();
+            checkReminders();
+            updateConnectionStatus();
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('dark-mode-toggle').textContent = '☀️ Light Mode';
+            }
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+            document.getElementById('operator-name').value = localStorage.getItem('lastOperator') || '';
+            if (Object.keys(admins).length === 0) {
+                showNotification('No admins registered. Please register one.', 'warning');
+            }
+            toggleAdminSection();
+        }
+
+        // Admin login
+        function adminLogin() {
+            const username = document.getElementById('admin-username').value.trim();
+            const password = document.getElementById('admin-password').value;
+            if (admins[username] && admins[username] === password) {
+                isAdminLoggedIn = true;
+                toggleAdminSection();
+                showNotification('Admin logged in successfully!');
+            } else {
+                showNotification('Invalid username or password.', 'error');
+            }
+        }
+
+        // Admin register
+        function adminRegister() {
+            const username = document.getElementById('admin-username').value.trim();
+            const password = document.getElementById('admin-password').value;
+            if (username && password && !admins[username]) {
+                admins[username] = password;
+                localStorage.setItem('admins', JSON.stringify(admins));
+                showNotification('Admin registered successfully!');
+            } else if (admins[username]) {
+                showNotification('Username already exists.', 'warning');
+            } else {
+                showNotification('Enter username and password.', 'error');
+            }
+        }
+
+        // Toggle admin section visibility
+        function toggleAdminSection() {
+            document.getElementById('admin-login-section').style.display = isAdminLoggedIn ? 'none' : 'block';
+            document.getElementById('admin-section').style.display = isAdminLoggedIn ? 'block' : 'none';
+        }
+
+        // Update language
+        function updateLanguage() {
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.textContent = el.getAttribute(`data-${currentLanguage}`) || el.textContent;
+            });
+            document.querySelectorAll('[data-en-placeholder]').forEach(el => {
+                el.placeholder = el.getAttribute(`data-${currentLanguage}-placeholder`) || el.placeholder;
+            });
+            document.getElementById('language-toggle').value = currentLanguage;
+        }
+
+        // Change language
+        document.getElementById('language-toggle').addEventListener('change', (e) => {
+            currentLanguage = e.target.value;
+            localStorage.setItem('language', currentLanguage);
+            updateLanguage();
+        });
+
+        // Update connection status
+        function updateConnectionStatus() {
+            const status = document.getElementById('connection-status');
+            status.textContent = navigator.onLine ? '🟢 Online' : '🔴 Offline';
+            status.className = navigator.onLine ? 'status' : 'status error';
+        }
+
+        // Update statistics
+        function updateStats() {
+            const now = Date.now();
+            const twentyFourHoursAgo = now - (24 * 60 * 60 * 1000);
+            const recentLogs = logs.filter(log => log.timestamp > twentyFourHoursAgo);
+            const completedLogs = recentLogs.filter(log => log.done);
+            const completionRate = recentLogs.length > 0 ? Math.round((completedLogs.length / recentLogs.length) * 100) : 0;
+            const totalTasks = Object.values(checklists).reduce((sum, tasks) => sum + tasks.length, 0) + Object.values(customLists).reduce((sum, lists) => sum + Object.values(lists).reduce((s, t) => s + t.length, 0), 0);
+            document.getElementById('completion-rate').textContent = `${completionRate}%`;
+            document.getElementById('total-machines').textContent = machines.length;
+            document.getElementById('pending-tasks').textContent = totalTasks;
+        }
+
+        // Update machine dropdowns
+        function updateMachineSelects() {
+            const adminSelect = document.getElementById('machine-select');
+            const operatorSelect = document.getElementById('operator-machine');
+            const reportSelect = document.getElementById('report-machine');
+            const filterSelect = document.getElementById('log-filter-machine');
+            const options = machines.map(m => `<option value="${m}">${m}</option>`).join('');
+            adminSelect.innerHTML = operatorSelect.innerHTML = filterSelect.innerHTML = `<option value="">${currentLanguage === 'sv' ? 'Alla maskiner' : 'All Machines'}</option>${options}`;
+            reportSelect.innerHTML = `<option value="">${currentLanguage === 'sv' ? 'Ingen specifik maskin' : 'No specific machine'}</option>${options}`;
+            updateOperatorFilter();
+        }
+
+        // Update operator filter
+        function updateOperatorFilter() {
+            const operatorSelect = document.getElementById('log-filter-operator');
+            const operators = [...new Set(logs.map(log => log.operator).filter(o => o))];
+            operatorSelect.innerHTML = `<option value="">${currentLanguage === 'sv' ? 'Alla operatörer' : 'All Operators'}</option>${operators.map(o => `<option value="${o}">${o}</option>`).join('')}`;
+        }
+
+        // Add new machine
+        function addMachine() {
+            const newMachine = document.getElementById('new-machine').value.trim();
+            if (newMachine && !machines.includes(newMachine)) {
+                machines.push(newMachine);
+                checklists[newMachine] = [];
+                localStorage.setItem('machines', JSON.stringify(machines));
+                document.getElementById('new-machine').value = '';
+                updateMachineSelects();
+                updateStats();
+                showNotification(currentLanguage === 'sv' ? `Maskin "${newMachine}" tillagd framgångsrikt!` : `Machine "${newMachine}" added successfully!`);
+            } else if (machines.includes(newMachine)) {
+                showNotification(currentLanguage === 'sv' ? 'Maskin finns redan!' : 'Machine already exists!', 'warning');
+            }
+        }
+
+        // Delete machine
+        function deleteMachine() {
+            const machine = document.getElementById('machine-select').value;
+            if (machine && confirm(currentLanguage === 'sv' ? `Är du säker på att du vill ta bort ${machine} och dess uppgifter?` : `Are you sure you want to delete ${machine} and its tasks?`)) {
+                machines = machines.filter(m => m !== machine);
+                delete checklists[machine];
+                localStorage.setItem('machines', JSON.stringify(machines));
+                localStorage.setItem('checklists', JSON.stringify(checklists));
+                updateMachineSelects();
+                loadTasks();
+                updateStats();
+                showNotification(currentLanguage === 'sv' ? `Maskin "${machine}" borttagen framgångsrikt!` : `Machine "${machine}" deleted successfully!`);
+            }
+        }
+
+        // Admin: Load tasks for selected machine
+        function loadTasks() {
+            const machine = document.getElementById('machine-select').value;
+            const taskList = document.getElementById('task-list');
+            const tasks = checklists[machine] || [];
+            if (tasks.length === 0) {
+                taskList.innerHTML = `<p style="text-align: center; color: #666;">${currentLanguage === 'sv' ? 'Inga uppgifter definierade för denna maskin.' : 'No tasks defined for this machine.'}</p>`;
+                return;
+            }
+            taskList.innerHTML = tasks.map((task, i) => `
+                <div class="task ${task.priority === 'critical' ? 'critical' : ''}">
+                    <label>${task.text} (${task.priority})</label>
+                    ${task.image ? `<img src="${task.image}" alt="Task image" onclick="enlargeImage('${task.image}')">` : ''}
+                    <div>
+                        <button onclick="moveTask(${i}, -1)" class="move-btn" ${i === 0 ? 'disabled' : ''} aria-label="Move task up">↑</button>
+                        <button onclick="moveTask(${i}, 1)" class="move-btn" ${i === tasks.length - 1 ? 'disabled' : ''} aria-label="Move task down">↓</button>
+                        <button onclick="deleteTask(${i})" class="task-delete" aria-label="Delete task">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+            loadCustomListsAdmin();
+        }
+
+        // Enlarge image
+        function enlargeImage(src) {
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.background = 'rgba(0,0,0,0.8)';
+            modal.style.zIndex = '2000';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            const img = document.createElement('img');
+            img.src = src;
+            img.style.maxWidth = '90%';
+            img.style.maxHeight = '90%';
+            modal.appendChild(img);
+            modal.onclick = () => document.body.removeChild(modal);
+            document.body.appendChild(modal);
+        }
+
+        // Admin: Move task
+        function moveTask(index, direction) {
+            const machine = document.getElementById('machine-select').value;
+            const tasks = checklists[machine];
+            const newIndex = index + direction;
+            if (newIndex >= 0 && newIndex < tasks.length) {
+                [tasks[index], tasks[newIndex]] = [tasks[newIndex], tasks[index]];
+                loadTasks();
+            }
+        }
+
+        // Admin: Add new task
+        function addTask() {
+            const machine = document.getElementById('machine-select').value;
+            const newTask = document.getElementById('new-task').value.trim();
+            const priority = document.getElementById('task-priority').value;
+            const fileInput = document.getElementById('task-image');
+            let image = '';
+            if (fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    image = e.target.result;
+                    addTaskWithImage(machine, newTask, priority, image);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                addTaskWithImage(machine, newTask, priority, image);
+            }
+        }
+
+        function addTaskWithImage(machine, newTask, priority, image) {
+            if (newTask) {
+                checklists[machine] = checklists[machine] || [];
+                checklists[machine].push({ text: newTask, priority, image });
+                document.getElementById('new-task').value = '';
+                document.getElementById('task-image').value = '';
+                loadTasks();
+                updateStats();
+                showNotification(currentLanguage === 'sv' ? 'Uppgift tillagd framgångsrikt!' : 'Task added successfully!');
+            }
+        }
+
+        // Admin: Delete task
+        function deleteTask(index) {
+            if (confirm(currentLanguage === 'sv' ? 'Är du säker på att du vill ta bort denna uppgift?' : 'Are you sure you want to delete this task?')) {
+                const machine = document.getElementById('machine-select').value;
+                checklists[machine].splice(index, 1);
+                loadTasks();
+                updateStats();
+                showNotification(currentLanguage === 'sv' ? 'Uppgift borttagen framgångsrikt!' : 'Task deleted successfully!');
+            }
+        }
+
+        // Admin: Save checklist
+        function saveChecklist() {
+            localStorage.setItem('checklists', JSON.stringify(checklists));
+            updateOperatorTasks();
+            showNotification(currentLanguage === 'sv' ? 'Checklista sparad framgångsrikt!' : 'Checklist saved successfully!');
+        }
+
+        // Add custom list
+        function addCustomList() {
+            const listName = document.getElementById('new-list-name').value.trim();
+            if (listName && !customLists[listName]) {
+                customLists[listName] = [];
+                document.getElementById('new-list-name').value = '';
+                loadCustomListsAdmin();
+                updateStats();
+                showNotification(currentLanguage === 'sv' ? `Lista "${listName}" tillagd framgångsrikt!` : `List "${listName}" added successfully!`);
+            } else if (customLists[listName]) {
+                showNotification(currentLanguage === 'sv' ? 'Lista finns redan!' : 'List already exists!', 'warning');
+            }
+        }
+
+        // Load custom lists for admin
+        function loadCustomListsAdmin() {
+            const customListsDiv = document.getElementById('custom-lists');
+            customListsDiv.innerHTML = Object.keys(customLists).map(listName => `
+                <div>
+                    <h4>${listName}</h4>
+                    <div class="form-group">
+                        <input type="text" id="new-task-${listName}" placeholder="${currentLanguage === 'sv' ? 'Ny uppgift' : 'New task'}">
+                        <select id="priority-${listName}">
+                            <option value="normal">${currentLanguage === 'sv' ? 'Normal' : 'Normal'}</option>
+                            <option value="critical">${currentLanguage === 'sv' ? 'Kritisk' : 'Critical'}</option>
+                        </select>
+                        <input type="file" id="image-${listName}" accept="image/*">
+                        <button onclick="addTaskToCustomList('${listName}')">➕</button>
+                    </div>
+                    <div id="tasks-${listName}">
+                        ${customLists[listName].map((task, i) => `
+                            <div class="task ${task.priority === 'critical' ? 'critical' : ''}">
+                                <label>${task.text}</label>
+                                ${task.image ? `<img src="${task.image}" alt="Task image" onclick="enlargeImage('${task.image}')">` : ''}
+                                <button onclick="deleteTaskFromCustomList('${listName}', ${i})">🗑️</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add task to custom list
+        function addTaskToCustomList(listName) {
+            const newTask = document.getElementById(`new-task-${listName}`).value.trim();
+            const priority = document.getElementById(`priority-${listName}`).value;
+            const fileInput = document.getElementById(`image-${listName}`);
+            let image = '';
+            if (fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    image = e.target.result;
+                    customLists[listName].push({ text: newTask, priority, image });
+                    loadCustomListsAdmin();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                customLists[listName].push({ text: newTask, priority, image });
+                loadCustomListsAdmin();
+            }
+        }
+
+        // Delete task from custom list
+        function deleteTaskFromCustomList(listName, index) {
+            customLists[listName].splice(index, 1);
+            loadCustomListsAdmin();
+        }
+
+        // Save custom lists
+        function saveCustomLists() {
+            localStorage.setItem('customLists', JSON.stringify(customLists));
+            updateAdditionalLists();
+            showNotification(currentLanguage === 'sv' ? 'Listor sparade framgångsrikt!' : 'Lists saved successfully!');
+        }
+
+        // Operator: Load tasks for checklist
+        function updateOperatorTasks() {
+            const machine = document.getElementById('operator-machine').value;
+            const tasksDiv = document.getElementById('operator-tasks');
+            const tasks = checklists[machine] || [];
+            if (tasks.length === 0) {
+                tasksDiv.innerHTML = `<p style="text-align: center; color: #666;">${currentLanguage === 'sv' ? 'Inga uppgifter för denna maskin.' : 'No tasks for this machine.'}</p>`;
+                return;
+            }
+            tasksDiv.innerHTML = tasks.map((task, i) => `
+                <div class="task ${task.priority === 'critical' ? 'critical' : ''}">
+                    <input type="checkbox" id="task${i}" name="task${i}" ${drafts[machine]?.[i] ? 'checked' : ''} aria-label="${task.text}">
+                    <label for="task${i}">${task.text} ${task.priority === 'critical' ? (currentLanguage === 'sv' ? '(Kritisk)' : '(Critical)') : ''}</label>
+                    ${task.image ? `<img src="${task.image}" alt="Task image" onclick="enlargeImage('${task.image}')">` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Operator: Save draft
+        function saveDraft() {
+            const machine = document.getElementById('operator-machine').value;
+            const tasks = checklists[machine] || [];
+            const draft = tasks.map((_, i) => document.getElementById(`task${i}`)?.checked || false);
+            drafts[machine] = draft;
+            localStorage.setItem('checklistDrafts', JSON.stringify(drafts));
+            showNotification(currentLanguage === 'sv' ? 'Utkast sparat framgångsrikt!' : 'Draft saved successfully!');
+        }
+
+        // Operator: Handle checklist submission
+        document.getElementById('checklist').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const machine = document.getElementById('operator-machine').value;
+            const operatorName = document.getElementById('operator-name').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+            const tasks = checklists[machine] || [];
+            const completedTasks = tasks.map((_, i) => document.getElementById(`task${i}`)?.checked || false);
+            const allDone = completedTasks.every(t => t);
+            const completedCount = completedTasks.filter(t => t).length;
+            if (!operatorName) {
+                showNotification(currentLanguage === 'sv' ? 'Ange ditt namn!' : 'Please enter your name!', 'error');
+                return;
+            }
+            localStorage.setItem('lastOperator', operatorName);
+            const logEntry = {
+                machine,
+                operator: operatorName,
+                done: allDone,
+                completedTasks: completedCount,
+                totalTasks: tasks.length,
+                notes,
+                timestamp: Date.now()
+            };
+            logs.push(logEntry);
+            localStorage.setItem('maintenanceLogs', JSON.stringify(logs));
+            delete drafts[machine];
+            localStorage.setItem('checklistDrafts', JSON.stringify(drafts));
+            updateLog();
+            updateStats();
+            const statusDiv = document.getElementById('status');
+            if (allDone) {
+                statusDiv.textContent = currentLanguage === 'sv' ? `✅ Checklista slutförd! Alla ${tasks.length} uppgifter klara.` : `✅ Checklist completed! All ${tasks.length} tasks done.`;
+                statusDiv.className = 'status';
+                showNotification(currentLanguage === 'sv' ? 'Checklista slutförd framgångsrikt!' : 'Checklist completed successfully!');
+            } else {
+                statusDiv.textContent = currentLanguage === 'sv' ? `⚠️ Checklista ofullständig! ${completedCount}/${tasks.length} uppgifter slutförda.` : `⚠️ Checklist incomplete! ${completedCount}/${tasks.length} tasks completed.`;
+                statusDiv.className = 'status warning';
+                showNotification(currentLanguage === 'sv' ? `Checklista skickad med ${tasks.length - completedCount} ofullständiga uppgifter.` : `Checklist submitted with ${tasks.length - completedCount} incomplete tasks.`, 'warning');
+            }
+            document.getElementById('checklist').reset();
+            document.getElementById('operator-name').value = operatorName;
+        });
+
+        // Update shift protocols (example protocols, can be customized)
+        function updateShiftProtocols() {
+            const protocolsDiv = document.getElementById('shift-protocols');
+            const protocols = [
+                { text: currentLanguage === 'sv' ? 'Kontrollera att alla maskiner är avstängda' : 'Ensure all machines are shut down', priority: 'critical' },
+                { text: currentLanguage === 'sv' ? 'Rapportera eventuella problem' : 'Report any issues', priority: 'normal' },
+                { text: currentLanguage === 'sv' ? 'Kontrollera säkerhetsutrustning' : 'Check safety equipment', priority: 'critical' }
+            ];
+            protocolsDiv.innerHTML = protocols.map((p, i) => `
+                <div class="task ${p.priority === 'critical' ? 'critical' : ''}">
+                    <input type="checkbox" id="protocol${i}" aria-label="${p.text}">
+                    <label for="protocol${i}">${p.text}</label>
+                </div>
+            `).join('');
+        }
+
+        // Update additional lists for operator
+        function updateAdditionalLists() {
+            const listsDiv = document.getElementById('additional-lists');
+            listsDiv.innerHTML = Object.keys(customLists).map(listName => `
+                <div>
+                    <h4>${listName}</h4>
+                    ${customLists[listName].map((task, i) => `
+                        <div class="task ${task.priority === 'critical' ? 'critical' : ''}">
+                            <input type="checkbox" id="${listName}-task${i}" aria-label="${task.text}">
+                            <label for="${listName}-task${i}">${task.text}</label>
+                            ${task.image ? `<img src="${task.image}" alt="Task image" onclick="enlargeImage('${task.image}')">` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        // Handle shift report submission
+        document.getElementById('shift-report').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const shift = document.getElementById('shift-select').value;
+            const notes = document.getElementById('shift-notes').value.trim();
+            const operator = document.getElementById('shift-operator').value.trim();
+            if (!operator) {
+                showNotification(currentLanguage === 'sv' ? 'Ange ditt namn!' : 'Please enter your name!', 'error');
+                return;
+            }
+            const protocols = Array.from(document.querySelectorAll('#shift-protocols input[type="checkbox"]')).map(cb => cb.checked);
+            const allProtocolsDone = protocols.every(p => p);
+            const additionalDone = Object.keys(customLists).every(listName => {
+                return Array.from(document.querySelectorAll(`#additional-lists #${listName}-task input[type="checkbox"]`)).every(cb => cb.checked);
+            });
+            const reportEntry = {
+                shift,
+                notes,
+                operator,
+                protocolsDone: allProtocolsDone,
+                additionalDone,
+                timestamp: Date.now()
+            };
+            shiftReports.push(reportEntry);
+            localStorage.setItem('shiftReports', JSON.stringify(shiftReports));
+            cleanOldShiftReports();
+            updateShiftReports();
+            document.getElementById('shift-status').textContent = allProtocolsDone && additionalDone ? (currentLanguage === 'sv' ? 'Skiftrapport slutförd!' : 'Shift report completed!') : (currentLanguage === 'sv' ? 'Skiftrapport ofullständig.' : 'Shift report incomplete.');
+            document.getElementById('shift-report').reset();
+            showNotification(currentLanguage === 'sv' ? 'Skiftrapport skickad!' : 'Shift report submitted!');
+        });
+
+        // Clean old shift reports (keep 2 weeks)
+        function cleanOldShiftReports() {
+            const twoWeeksAgo = Date.now() - (14 * 24 * 60 * 60 * 1000);
+            shiftReports = shiftReports.filter(r => r.timestamp > twoWeeksAgo);
+            localStorage.setItem('shiftReports', JSON.stringify(shiftReports));
+        }
+
+        // Update shift reports display
+        function updateShiftReports() {
+            const reportList = document.getElementById('shift-report-list');
+            cleanOldShiftReports();
+            if (shiftReports.length === 0) {
+                reportList.innerHTML = `<p style="text-align: center; color: #666;">${currentLanguage === 'sv' ? 'Inga skiftrapporter de senaste 2 veckorna.' : 'No shift reports in the last 2 weeks.'}</p>`;
+                return;
+            }
+            reportList.innerHTML = shiftReports.sort((a, b) => b.timestamp - a.timestamp).map(r => `
+                <div class="log-item ${r.protocolsDone && r.additionalDone ? '' : 'incomplete'}">
+                    <strong>${r.shift}</strong> - ${r.operator}<br>
+                    ${r.protocolsDone && r.additionalDone ? '✅ Completed' : '⚠️ Incomplete'}<br>
+                    <small>${new Date(r.timestamp).toLocaleString()}</small>
+                    ${r.notes ? `<br><em>"${r.notes}"</em>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Submit error/enhancement report
+        function submitReport() {
+            const reportText = document.getElementById('report-text').value.trim();
+            const reportType = document.getElementById('report-type').value;
+            const reportMachine = document.getElementById('report-machine').value;
+            const reportPriority = document.getElementById('report-priority').value;
+            const reporterName = document.getElementById('reporter-name').value.trim();
+            if (reportText) {
+                const report = {
+                    type: reportType,
+                    text: reportText,
+                    machine: reportMachine,
+                    priority: reportPriority,
+                    reporter: reporterName || (currentLanguage === 'sv' ? 'Anonym' : 'Anonymous'),
+                    timestamp: Date.now()
+                };
+                reports.push(report);
+                localStorage.setItem('reports', JSON.stringify(reports));
+                document.getElementById('report-text').value = '';
+                document.getElementById('reporter-name').value = '';
+                updateReports();
+                showNotification(currentLanguage === 'sv' ? 'Rapport skickad framgångsrikt!' : 'Report submitted successfully!');
+            }
+        }
+
+        // Update 48-hour log
+        function updateLog() {
+            const now = Date.now();
+            const fortyEightHoursAgo = now - (48 * 60 * 60 * 1000);
+            const filterMachine = document.getElementById('log-filter-machine').value;
+            const filterOperator = document.getElementById('log-filter-operator').value;
+            let recentLogs = logs.filter(log => log.timestamp > fortyEightHoursAgo);
+            if (filterMachine) recentLogs = recentLogs.filter(log => log.machine === filterMachine);
+            if (filterOperator) recentLogs = recentLogs.filter(log => log.operator === filterOperator);
+            recentLogs.sort((a, b) => b.timestamp - a.timestamp);
+            const logList = document.getElementById('log-list');
+            if (recentLogs.length === 0) {
+                logList.innerHTML = `<p style="text-align: center; color: #666;">${currentLanguage === 'sv' ? 'Inga underhållsloggar de senaste 48 timmarna.' : 'No maintenance logs in the last 48 hours.'}</p>`;
+                return;
+            }
+            logList.innerHTML = recentLogs.map(log => `
+                <div class="log-item ${log.done ? '' : 'incomplete'}">
+                    <strong>${log.machine}</strong> - ${log.operator || (currentLanguage === 'sv' ? 'Okänd' : 'Unknown')}<br>
+                    ${log.done ? '✅ Completed' : '⚠️ Incomplete'} 
+                    (${log.completedTasks || 0}/${log.totalTasks || 0} tasks)<br>
+                    <small>${new Date(log.timestamp).toLocaleString()}</small>
+                    ${log.notes ? `<br><em>"${log.notes}"</em>` : ''}
+                </div>
+            `).join('');
+            updateOperatorFilter();
+        }
+
+        // Update error/enhancement reports
+        function updateReports() {
+            const reportList = document.getElementById('report-list');
+            if (reports.length === 0) {
+                reportList.innerHTML = `<p style="text-align: center; color: #666;">${currentLanguage === 'sv' ? 'Inga rapporter skickade.' : 'No reports submitted.'}</p>`;
+                return;
+            }
+            const sortedReports = reports.sort((a, b) => b.timestamp - a.timestamp);
+            reportList.innerHTML = sortedReports.map(r => {
+                const typeEmoji = { bug: '🐛', enhancement: '💡', maintenance: '🔧' };
+                return `
+                    <div class="log-item">
+                        <strong>${typeEmoji[r.type] || '📝'} ${r.type.toUpperCase()} (${r.priority})</strong> - ${r.reporter}<br>
+                        ${r.text}${r.machine ? `<br><em>${currentLanguage === 'sv' ? 'Relaterat till: ' : 'Related to: '}${r.machine}</em>` : ''}<br>
+                        <small>${new Date(r.timestamp).toLocaleString()}</small>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Check for reminders
+        function checkReminders() {
+            const now = Date.now();
+            const twentyFourHoursAgo = now - (24 * 60 * 60 * 1000);
+            machines.forEach(machine => {
+                const recentLogs = logs.filter(log => 
+                    log.machine === machine && 
+                    log.timestamp > twentyFourHoursAgo &&
+                    log.done
+                );
+                if (recentLogs.length === 0) {
+                    console.log(`Reminder: ${machine} maintenance overdue!`);
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification(currentLanguage === 'sv' ? 'Underhållspåminnelse' : 'Maintenance Reminder', {
+                            body: `${machine} ${currentLanguage === 'sv' ? 'underhåll är försenat! Slutför checklistan.' : 'maintenance is overdue! Please complete the checklist.'}`,
+                            icon: '🔧'
+                        });
+                    }
+                }
+            });
+        }
+
+        // Export data
+        function exportData(format) {
+            const data = { machines, checklists, customLists, logs, shiftReports, reports, exportDate: new Date().toISOString() };
+            if (format === 'json') {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `maintenance_data_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification(currentLanguage === 'sv' ? 'JSON exporterad framgångsrikt!' : 'JSON exported successfully!');
+            } else if (format === 'csv') {
+                let csv = 'Type,Timestamp,Machine,Operator,Status,CompletedTasks,TotalTasks,Notes,Shift,Reporter,ReportType,ReportPriority,ReportMachine\n';
+                logs.forEach(log => {
+                    csv += `Log,"${new Date(log.timestamp).toLocaleString()}","${log.machine}","${log.operator || ''}",${log.done ? 'Completed' : 'Incomplete'},${log.completedTasks || 0},${log.totalTasks || 0},"${log.notes.replace(/"/g, '""') || ''}","","","","",""\n`;
+                });
+                shiftReports.forEach(r => {
+                    csv += `Shift Report,"${new Date(r.timestamp).toLocaleString()}","","${r.operator}",${r.protocolsDone && r.additionalDone ? 'Completed' : 'Incomplete'},"","","${r.notes.replace(/"/g, '""') || ''}","${r.shift}","","","",""\n`;
+                });
+                reports.forEach(r => {
+                    csv += `Report,"${new Date(r.timestamp).toLocaleString()}","${r.machine || ''}","","","","","","${r.reporter}","${r.type}","${r.priority}","${r.text.replace(/"/g, '""')}",""\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `maintenance_data_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification(currentLanguage === 'sv' ? 'CSV exporterad framgångsrikt!' : 'CSV exported successfully!');
+            }
+        }
+
+        // Copy to clipboard
+        function copyToClipboard() {
+            const data = { machines, checklists, customLists, logs, shiftReports, reports, exportDate: new Date().toISOString() };
+            navigator.clipboard.writeText(JSON.stringify(data, null, 2)).then(() => {
+                showNotification(currentLanguage === 'sv' ? 'Data kopierad till urklipp!' : 'Data copied to clipboard!');
+            }).catch(() => {
+                showNotification(currentLanguage === 'sv' ? 'Misslyckades att kopiera till urklipp.' : 'Failed to copy to clipboard.', 'error');
+            });
+        }
+
+        // Clear old data
+        function clearOldData() {
+            if (confirm(currentLanguage === 'sv' ? 'Detta kommer att ta bort loggar och rapporter äldre än 30 dagar. Är du säker?' : 'This will remove logs and reports older than 30 days. Are you sure?')) {
+                const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+                logs = logs.filter(log => log.timestamp > thirtyDaysAgo);
+                reports = reports.filter(report => report.timestamp > thirtyDaysAgo);
+                localStorage.setItem('maintenanceLogs', JSON.stringify(logs));
+                localStorage.setItem('reports', JSON.stringify(reports));
+                updateLog();
+                updateReports();
+                updateStats();
+                showNotification(currentLanguage === 'sv' ? 'Gammal data rensad framgångsrikt!' : 'Old data cleared successfully!');
+            }
+        }
+
+        // Reset all data
+        function resetAllData() {
+            if (confirm(currentLanguage === 'sv' ? 'Detta kommer att rensa ALLA maskiner, checklistor, loggar och rapporter. Är du säker?' : 'This will clear ALL machines, checklists, logs, and reports. Are you sure?')) {
+                machines = [];
+                checklists = {};
+                customLists = {};
+                logs = [];
+                shiftReports = [];
+                reports = [];
+                drafts = {};
+                localStorage.clear();
+                updateMachineSelects();
+                loadTasks();
+                updateOperatorTasks();
+                updateLog();
+                updateShiftReports();
+                updateReports();
+                updateStats();
+                showNotification(currentLanguage === 'sv' ? 'All data återställd framgångsrikt!' : 'All data reset successfully!');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('machine-select').addEventListener('change', loadTasks);
+        document.getElementById('operator-machine').addEventListener('change', updateOperatorTasks);
+        document.getElementById('log-filter-machine').addEventListener('change', updateLog);
+        document.getElementById('log-filter-operator').addEventListener('change', updateLog);
+        document.getElementById('dark-mode-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            document.getElementById('dark-mode-toggle').textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            showNotification(currentLanguage === 'sv' ? `Bytt till ${isDark ? 'mörkt' : 'ljust'} läge!` : `Switched to ${isDark ? 'dark' : 'light'} mode!`);
+        });
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        setInterval(() => {
+            localStorage.setItem('checklists', JSON.stringify(checklists));
+            localStorage.setItem('customLists', JSON.stringify(customLists));
+            localStorage.setItem('machines', JSON.stringify(machines));
+            localStorage.setItem('checklistDrafts', JSON.stringify(drafts));
+        }, 30000);
+        setInterval(checkReminders, 3600000);
+        init();
+    </script>
+</body>
+</html>
